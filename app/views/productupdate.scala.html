@@ -4,7 +4,7 @@
 
 @flash.get("success").getOrElse("")
 
-@form(routes.HomeController.updateProductHandle()) {
+@form(routes.CategoryController.updateProductHandle()) {
   @helper.CSRF.formField
   <input name="id" id="id" value="@product("id").value" type="hidden" />
   @inputText(product("name"))

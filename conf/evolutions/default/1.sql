@@ -1,4 +1,4 @@
-  
+
 # --- !Ups
 
 CREATE TABLE "category" (
@@ -13,6 +13,8 @@ CREATE TABLE "product" (
  "category" INT NOT NULL,
  FOREIGN KEY(category) references category(id)
 );
+
+
 
 # --- !Downs
 --
