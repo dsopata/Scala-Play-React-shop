@@ -7,6 +7,8 @@ import play.api.data.Forms._
 import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import play.api.libs.json._
+
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
@@ -38,6 +40,11 @@ class HomeController @Inject()(productsRepo: ProductRepository, categoryRepo: Ca
   def getProducts: Action[AnyContent] = Action.async { implicit request =>
     val produkty = productsRepo.list()
     produkty.map( products => Ok(views.html.products(products)))
+  }
+
+  def getProductsJSON: Action[AnyContent] = Action.async { implicit request =>
+    val produkty = productsRepo.list()
+    produkty.map( products => Ok(Json.toJson(products)))
   }
 
   def getProduct(id: Long): Action[AnyContent] = Action.async { implicit request =>

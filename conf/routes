@@ -10,6 +10,8 @@ GET     /updateproduct/:id          controllers.HomeController.updateProduct(id:
 POST    /updateproducthandle        controllers.HomeController.updateProductHandle
 
 GET     /products                   controllers.HomeController.getProducts
+GET     /productsJson               controllers.HomeController.getProductsJSON
+
 GET     /product/:id                controllers.HomeController.getProduct(id: Long)
 GET     /delete/:id                 controllers.HomeController.delete(id: Long)
 # An example controller showing how to use dependency injection
