@@ -6,7 +6,7 @@ lazy val `scala1` = (project in file(".")).enablePlugins(PlayScala)
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       
-resolvers += "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/"
+resolvers += "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/Users/dsopata/_projects/studies/scala1/app/controllers/UserController.scala:10/"
       
 scalaVersion := "2.12.2"
 
