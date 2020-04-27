@@ -14,7 +14,7 @@ import play.api.libs.json._
  * application's category page.
  */
 @Singleton
-class CategoryController @Inject()(productsRepo: ProductRepository, categoryRepo: CategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+class ProductController @Inject()(productsRepo: ProductRepository, categoryRepo: CategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
 
   val productForm: Form[CreateProductForm] = Form {
     mapping(
@@ -51,7 +51,7 @@ class CategoryController @Inject()(productsRepo: ProductRepository, categoryRepo
     val produkt = productsRepo.getByIdOption(id)
     produkt.map(product => product match {
       case Some(p) => Ok(views.html.product(p))
-      case None => Redirect(routes.CategoryController.getProducts())
+      case None => Redirect(routes.ProductController.getProducts())
     })
   }
 
@@ -91,7 +91,7 @@ class CategoryController @Inject()(productsRepo: ProductRepository, categoryRepo
       },
       product => {
         productsRepo.update(product.id, Product(product.id, product.name, product.description, product.category)).map { _ =>
-          Redirect(routes.CategoryController.updateProduct(product.id)).flashing("success" -> "product updated")
+          Redirect(routes.ProductController.updateProduct(product.id)).flashing("success" -> "product updated")
         }
       }
     )
@@ -119,11 +119,10 @@ class CategoryController @Inject()(productsRepo: ProductRepository, categoryRepo
       },
       product => {
         productsRepo.create(product.name, product.description, product.category).map { _ =>
-          Redirect(routes.CategoryController.addProduct()).flashing("success" -> "product.created")
+          Redirect(routes.ProductController.addProduct()).flashing("success" -> "product.created")
         }
       }
     )
-
   }
   /*
     def addProduct = Action { implicit request: MessagesRequest[AnyContent] =>
@@ -141,7 +140,7 @@ class CategoryController @Inject()(productsRepo: ProductRepository, categoryRepo
     val successFunction = { data: Product =>
       // This is the good case, where the form was successfully parsed as a Data object.
       productsRepo.create(data.name, data.description, data.category).map { _ =>
-        Redirect(routes.CategoryController.addProduct()).flashing("success" -> "product.created")
+        Redirect(routes.ProductController.addProduct()).flashing("success" -> "product.created")
       }
     }
     val formValidationResult = productForm.bindFromRequest
