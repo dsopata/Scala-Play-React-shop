@@ -22,8 +22,40 @@ GET     /count                      controllers.CountController.count
 # An example controller showing how to write asynchronous code
 GET     /message                    controllers.AsyncController.message
 
-
-GET     /users                 controllers.UserController.getUsers
-
-# Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+GET    /adduser                    controllers.UserController.insert
+GET    /udpateuser/:id             controllers.UserController.update
+GET    /deleteuser/:id             controllers.UserController.delete
+GET    /getuser/:id                controllers.UserController.getid
+GET    /users                      controllers.UserController.getAll
+
+POST    /addcart                    controllers.CartController.insert
+POST    /udpatecart/:id             controllers.CartController.update
+POST    /deletecart/:id             controllers.CartController.delete
+GET    /getcart/:id                controllers.CartController.getid
+GET    /carts                      controllers.CartController.getAll
+
+POST    /addcomment                    controllers.CommentController.insert
+POST    /udpatecomment/:id             controllers.CommentController.update
+POST    /deletecomment/:id             controllers.CommentController.delete
+GET    /getcomment/:id                controllers.CommentController.getid
+GET    /comments                      controllers.CommentController.getAll
+
+POST    /adddelivery                    controllers.DeliveryController.insert
+POST    /udpatedelivery/:id             controllers.DeliveryController.update
+POST    /deletedelivery/:id             controllers.DeliveryController.delete
+GET    /getdelivery/:id                controllers.DeliveryController.getid
+GET    /deliverys                      controllers.DeliveryController.getAll
+
+GET    /addpaynment                    controllers.PaynmentController.insert
+GET    /udpatepaynment/:id             controllers.PaynmentController.update
+GET    /deletepaynment/:id             controllers.PaynmentController.delete
+GET    /getpaynment/:id                controllers.PaynmentController.getid
+GET    /paynments                      controllers.PaynmentController.getAll
+
+GET    /addwarehouse                    controllers.WarehouseController.insert
+GET    /udpatewarehouse/:id             controllers.WarehouseController.update
+GET    /deletewarehouse/:id             controllers.WarehouseController.delete
+GET    /getwarehouse/:id                controllers.WarehouseController.getid
+GET    /warehouses                      controllers.WarehouseController.getAll
