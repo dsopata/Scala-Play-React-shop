@@ -24,9 +24,9 @@ GET     /message                    controllers.AsyncController.message
 
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET    /adduser                    controllers.UserController.insert
-GET    /udpateuser/:id             controllers.UserController.update
-GET    /deleteuser/:id             controllers.UserController.delete
+POST    /adduser                    controllers.UserController.insert
+POST    /udpateuser/:id             controllers.UserController.update
+POST    /deleteuser/:id             controllers.UserController.delete
 GET    /getuser/:id                controllers.UserController.getid
 GET    /users                      controllers.UserController.getAll
 
@@ -48,14 +48,14 @@ POST    /deletedelivery/:id             controllers.DeliveryController.delete
 GET    /getdelivery/:id                controllers.DeliveryController.getid
 GET    /deliverys                      controllers.DeliveryController.getAll
 
-GET    /addpaynment                    controllers.PaynmentController.insert
-GET    /udpatepaynment/:id             controllers.PaynmentController.update
-GET    /deletepaynment/:id             controllers.PaynmentController.delete
+POST    /addpaynment                    controllers.PaynmentController.insert
+POST    /udpatepaynment/:id             controllers.PaynmentController.update
+POST    /deletepaynment/:id             controllers.PaynmentController.delete
 GET    /getpaynment/:id                controllers.PaynmentController.getid
 GET    /paynments                      controllers.PaynmentController.getAll
 
-GET    /addwarehouse                    controllers.WarehouseController.insert
-GET    /udpatewarehouse/:id             controllers.WarehouseController.update
-GET    /deletewarehouse/:id             controllers.WarehouseController.delete
+POST    /addwarehouse                    controllers.WarehouseController.insert
+POST    /udpatewarehouse/:id             controllers.WarehouseController.update
+POST    /deletewarehouse/:id             controllers.WarehouseController.delete
 GET    /getwarehouse/:id                controllers.WarehouseController.getid
 GET    /warehouses                      controllers.WarehouseController.getAll
