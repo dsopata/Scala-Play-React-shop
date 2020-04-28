@@ -5,7 +5,6 @@ import play.api.mvc.AnyContent;
 import java.awt.*;
 
 public class CommentController {
-
     def getAll: Desktop.Action[AnyContent] = Desktop.Action.async { implicit request =>
         val comments = warehouse.list()
 
@@ -37,5 +36,4 @@ public class CommentController {
         comments.map( a => Ok("ok")
 
     }
-
 }
