@@ -25,6 +25,13 @@ class Products extends Component {
             .then(results => {
                 return results.json();
             }).then(data => {
+                console.log("products..")
+                console.log(data)
+                if(data == "") {
+                    return (
+                        <div>No products in db</div>
+                    )
+                }
             let products = data.map((prod) => {
                 return (
                     <div key={prod.id}>
@@ -41,7 +48,7 @@ class Products extends Component {
     render() {
         return (
             <div className="products">
-            {this.state.products}
+                {this.state.products}
             </div>
         )
     }
