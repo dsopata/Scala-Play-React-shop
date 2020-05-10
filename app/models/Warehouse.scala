@@ -2,7 +2,7 @@ package models
 
 import play.api.libs.json._
 
-class Warehouse(id: Int, name: String)
+case class Warehouse(id: Int, name: String)
 
 object Warehouse {
   implicit val warehouseFormat = Json.format[Warehouse]

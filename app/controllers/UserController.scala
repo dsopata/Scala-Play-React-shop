@@ -1,7 +1,9 @@
 package controllers
 
+import java.util.UUID
+
 import javax.inject._
-import models.{Category, User, UserRepository}
+import models.{User, UserRepository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc._
@@ -31,16 +33,18 @@ class UserController @Inject()( userRepo: UserRepository, cc: MessagesController
 
   def getUser: Action[AnyContent] = Action.async { implicit request =>
     val users = userRepo.list()
-    users.map( users => Ok(views.html.users(users)))
+    users.map(
+      users => Ok(views.html.users(users))
+      )
   }
 
-  def delete(id: Long): Action[AnyContent] = Action {
+  def delete(id: UUID): Action[AnyContent] = Action {
     userRepo.delete(id)
     Redirect("/users")
   }
 
-  def update(id: Long): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    var categ:Seq[Category] = Seq[Category]()
+  def update(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    var categ:Seq[User] = Seq[User]()
     val categories = userRepo.list().onComplete{
       case Success(cat) => categ = cat
       case Failure(_) => print("fail")
@@ -60,4 +64,4 @@ class UserController @Inject()( userRepo: UserRepository, cc: MessagesController
 }
 //
 case class CreateUserForm(firstName: String, lastName: String, email: String, address: String)
-//case class UpdateProductForm(id: Long, name: String, description: String, category: Int)
+//case class UpdateProductForm(id: Long, name: String, description: String, user: Int)
