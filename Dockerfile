@@ -1,8 +1,9 @@
 FROM ubuntu:19.04
 
+RUN sed -i -e 's|disco|eoan|g' /etc/apt/sources.list
 RUN apt-get update
 
-RUN apt-get -y install openjdk-8-jdk vim unzip curl wget dirmngr apt-transport-https lsb-release ca-certificates && \
+RUN apt-get install openjdk-8-jdk vim unzip curl wget dirmngr apt-transport-https lsb-release ca-certificates  -y && \
 curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 #node 12 npm 6.8
@@ -27,7 +28,7 @@ WORKDIR /home/appuser/
 
 VOLUME  /home/appuser/projekt
 
-EXPOSE 9000 8000 5000 8888
+EXPOSE 9000 8000 5000 8888 3000
 
 CMD java -version && \
     scala -version && \
