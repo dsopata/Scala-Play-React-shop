@@ -1,0 +1,15 @@
+version: "2.0"
+services:
+    frontend:
+        image: ebiznes-frontend
+        volumes:
+              - ./reactebiznes:/home/appuser/project/:Z,rw
+        ports:
+              - "3000:3000"
+        stdin_open: true
+    backend:
+          image: ebiznes
+          volumes:
+              - .:/home/appuser/project/:Z,rw
+          ports:
+                - "9000:9000"

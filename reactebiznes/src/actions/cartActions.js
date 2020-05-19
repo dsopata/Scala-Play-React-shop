@@ -34,7 +34,7 @@ export const checkout=(userId, total, cartItems, address)=>{
         subtotal: item.price,
     }));
     axios
-        .post("/sales", {order_date: Date.now(),
+        .post("http://localhost:9000/sales", {order_date: Date.now(),
             total: total,
             user_id: userId,
                 addressStreet: address.street,

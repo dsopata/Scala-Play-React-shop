@@ -10,27 +10,20 @@ curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt -y install nodejs
 RUN npm i -g npm@6.8
 
-# scala 2.12.8
-RUN wget https://dl.bintray.com/sbt/debian/sbt-1.2.8.deb && \
-    wget http://downloads.lightbend.com/scala/2.12.8/scala-2.12.8.deb && \
-    dpkg -i sbt-1.2.8.deb && \
-    dpkg -i scala-2.12.8.deb && \
+# scala 2.12.1
+RUN wget https://dl.bintray.com/sbt/debian/sbt-1.3.7.deb && \
+    wget http://downloads.lightbend.com/scala/2.12.1/scala-2.12.1.deb && \
+    dpkg -i sbt-1.3.7.deb && \
+    dpkg -i scala-2.12.1.deb && \
     rm *.deb
 
 RUN useradd -ms /bin/bash appuser
 RUN adduser appuser sudo
 
 USER appuser
-WORKDIR /home/appuser/
-RUN mkdir /home/appuser/projekt/
+RUN mkdir /home/appuser/project/
 
-WORKDIR /home/appuser/
+WORKDIR /home/appuser/project/
+RUN sbt sbtVersion
 
-VOLUME  /home/appuser/projekt
-
-EXPOSE 9000 8000 5000 8888 3000
-
-CMD java -version && \
-    scala -version && \
-    npm --version && \
-    sbt --version
+CMD sbt run

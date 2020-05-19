@@ -1,4 +1,9 @@
-APP_NAME=ebiznes
 
-build: ## Build the container
-	docker build -t $(APP_NAME) .
+build:
+	docker build -t ebiznes .
+	docker build -f ./DockerfileFrontend -t ebiznes-frontend .
+
+run:
+	docker-compose up
+
+up: build run

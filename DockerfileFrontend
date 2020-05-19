@@ -1,0 +1,23 @@
+FROM ubuntu:19.04
+
+RUN sed -i -e 's|disco|eoan|g' /etc/apt/sources.list
+RUN apt-get update
+
+RUN apt-get install vim unzip curl wget dirmngr apt-transport-https lsb-release ca-certificates  -y && \
+curl -sL https://deb.nodesource.com/setup_12.x | bash -
+
+#node 12 npm 6.8
+RUN apt -y install nodejs
+RUN npm i -g npm@6.8
+
+RUN useradd -ms /bin/bash appuser
+RUN adduser appuser sudo
+
+USER appuser
+WORKDIR /home/appuser/
+RUN mkdir /home/appuser/project/
+
+WORKDIR /home/appuser/project/
+
+RUN npm install
+CMD npm start
