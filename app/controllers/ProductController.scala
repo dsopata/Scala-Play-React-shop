@@ -1,153 +1,92 @@
 package controllers
 
-import javax.inject._
-import models.{Category, CategoryRepository, Product, ProductRepository}
+import com.mohiva.play.silhouette.api.Silhouette
+import javax.inject.Inject
+import models.{ CategoryRepository, ProductRepository, UserRepository }
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
-import play.api.libs.json._
+import play.api.data.format.Formats._
+import play.api.libs.json.Json
+import play.api.mvc.{ Action, AnyContent, MessagesAbstractController, MessagesControllerComponents }
+import utils.auth.DefaultEnv
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's category page.
- */
-@Singleton
-class ProductController @Inject()(productsRepo: ProductRepository, categoryRepo: CategoryRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
+import scala.concurrent.{ ExecutionContext, Future }
+
+class ProductController @Inject() (
+  productsRepo: ProductRepository,
+  categoryRepo: CategoryRepository,
+  cc: MessagesControllerComponents,
+  userRepository: UserRepository,
+  silhouette: Silhouette[DefaultEnv]
+)(implicit ec: ExecutionContext)
+  extends MessagesAbstractController(cc) {
 
   val productForm: Form[CreateProductForm] = Form {
     mapping(
       "name" -> nonEmptyText,
       "description" -> nonEmptyText,
-      "category" -> number,
+      "price" -> of[Double],
+      "category" -> number
     )(CreateProductForm.apply)(CreateProductForm.unapply)
   }
 
-  val updateProductForm: Form[UpdateProductForm] = Form {
-    mapping(
-      "id" -> longNumber,
-      "name" -> nonEmptyText,
-      "description" -> nonEmptyText,
-      "category" -> number,
-    )(UpdateProductForm.apply)(UpdateProductForm.unapply)
-  }
-
-  def index = Action {
-    Ok(views.html.index("Your new application is ready."))
-  }
-
   def getProducts: Action[AnyContent] = Action.async { implicit request =>
-    val produkty = productsRepo.list()
-    produkty.map( products => Ok(views.html.products(products)))
-  }
-
-  def getProductsJSON: Action[AnyContent] = Action.async { implicit request =>
-    val produkty = productsRepo.list()
-    produkty.map( products => Ok(Json.toJson(products)))
-  }
-
-  def getProduct(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    val produkt = productsRepo.getByIdOption(id)
-    produkt.map(product => product match {
-      case Some(p) => Ok(views.html.product(p))
-      case None => Redirect(routes.ProductController.getProducts())
-    })
-  }
-
-  def delete(id: Long): Action[AnyContent] = Action {
-    productsRepo.delete(id)
-    Redirect("/products")
-  }
-
-  def updateProduct(id: Long): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    var categ:Seq[Category] = Seq[Category]()
-    val categories = categoryRepo.list().onComplete{
-      case Success(cat) => categ = cat
-      case Failure(_) => print("fail")
+    productsRepo.list().map { p =>
+      Ok(Json.toJson(p))
     }
-
-    val produkt = productsRepo.getById(id)
-    produkt.map(product => {
-      val prodForm = updateProductForm.fill(UpdateProductForm(product.id, product.name, product.description,product.category))
-      //  id, product.name, product.description, product.category)
-      //updateProductForm.fill(prodForm)
-      Ok(views.html.productupdate(prodForm, categ))
-    })
   }
 
-  def updateProductHandle = Action.async { implicit request =>
-    var categ:Seq[Category] = Seq[Category]()
-    val categories = categoryRepo.list().onComplete{
-      case Success(cat) => categ = cat
-      case Failure(_) => print("fail")
+  def getProductById(id: Int): Action[AnyContent] = Action.async { implicit request =>
+    productsRepo.findById(id).map { p =>
+      Ok(Json.toJson(p))
     }
-
-    updateProductForm.bindFromRequest.fold(
-      errorForm => {
-        Future.successful(
-          BadRequest(views.html.productupdate(errorForm, categ))
-        )
-      },
-      product => {
-        productsRepo.update(product.id, Product(product.id, product.name, product.description, product.category)).map { _ =>
-          Redirect(routes.ProductController.updateProduct(product.id)).flashing("success" -> "product updated")
-        }
-      }
-    )
-
   }
 
-
-  def addProduct: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    val categories = categoryRepo.list()
-    categories.map (cat => Ok(views.html.productadd(productForm, cat)))
-  }
-
-  def addProductHandle = Action.async { implicit request =>
-    var categ:Seq[Category] = Seq[Category]()
-    val categories = categoryRepo.list().onComplete{
-      case Success(cat) => categ = cat
-      case Failure(_) => print("fail")
+  def getByCategory(id: Int): Action[AnyContent] = Action.async { implicit request =>
+    productsRepo.getByCategory(id).map { products =>
+      Ok(Json.toJson(products))
     }
+  }
 
-    productForm.bindFromRequest.fold(
-      errorForm => {
-        Future.successful(
-          BadRequest(views.html.productadd(errorForm, categ))
-        )
-      },
-      product => {
-        productsRepo.create(product.name, product.description, product.category).map { _ =>
-          Redirect(routes.ProductController.addProduct()).flashing("success" -> "product.created")
-        }
-      }
-    )
-  }
-  /*
-    def addProduct = Action { implicit request: MessagesRequest[AnyContent] =>
-      var categ:Seq[Category] = Seq[Category]()
-      val categories = categoryRepo.list().onComplete{
-        case Success(cat) => categ = cat
-        case Failure(_) => print("fail")
-      }
-      val errorFunction = { productForm =>
-      // This is the bad case, where the form had validation errors.
-      // Let's show the user the form again, with the errors highlighted.
-      // Note how we pass the form with errors to the template.
-      BadRequest(views.html.productadd(productForm, categ))
+  def getByCategories(categories: List[Int]): Action[AnyContent] = Action.async { implicit request =>
+    productsRepo.getByCategories(categories).map { products =>
+      Ok(Json.toJson(products))
     }
-    val successFunction = { data: Product =>
-      // This is the good case, where the form was successfully parsed as a Data object.
-      productsRepo.create(data.name, data.description, data.category).map { _ =>
-        Redirect(routes.ProductController.addProduct()).flashing("success" -> "product.created")
-      }
-    }
-    val formValidationResult = productForm.bindFromRequest
-    formValidationResult.fold(errorFunction, successFunction)
   }
-  */
+
+  def create: Action[AnyContent] = Action.async { implicit request =>
+    val name = request.body.asJson.get("name").as[String]
+    val description = request.body.asJson.get("description").as[String]
+    val price = request.body.asJson.get("price").as[String].toDouble
+    val category = Integer.valueOf(request.body.asJson.get("category").as[String])
+    val image = request.body.asJson.get("image").as[String]
+
+    productsRepo.create(name, description, price, category, image).map { product =>
+      Ok(Json.toJson(product))
+    }
+  }
+
+  def update(productId: Int): Action[AnyContent] = Action.async { implicit request =>
+    val name = request.body.asJson.get("name").as[String]
+    val description = request.body.asJson.get("description").as[String]
+    val price = request.body.asJson.get("price").as[String].toDouble
+    val category = Integer.valueOf(request.body.asJson.get("category").as[String])
+    val image = request.body.asJson.get("image").as[String]
+
+    productsRepo.update(productId, name, description, price, category, image).map { product =>
+      Ok(Json.toJson(product))
+    }
+  }
+
+  def delete(id: Int): Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
+    val userId = request.identity.userID
+    if (userRepository.isUserAdmin(userId)) {
+      productsRepo.delete(id)
+      Future.successful(Ok(Json.toJson("response" -> true)))
+    } else {
+      Future.successful(Unauthorized(Json.obj("response" -> false)))
+    }
+  }
 }
 
-case class CreateProductForm(name: String, description: String, category: Int)
-case class UpdateProductForm(id: Long, name: String, description: String, category: Int)
+case class CreateProductForm(name: String, description: String, price: Double, category: Int)

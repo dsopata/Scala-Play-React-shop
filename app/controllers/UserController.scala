@@ -2,66 +2,63 @@ package controllers
 
 import java.util.UUID
 
-import javax.inject._
-import models.{User, UserRepository}
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.mvc._
+import com.mohiva.play.silhouette.api.Silhouette
+import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import javax.inject.Inject
+import models.{ RoleRepository, User, UserRepository }
+import play.api.libs.json.Json
+import play.api.mvc.{ Action, AnyContent, MessagesAbstractController, MessagesControllerComponents }
+import utils.auth.DefaultEnv
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ ExecutionContext, Future }
 
-
-@Singleton
-class UserController @Inject()( userRepo: UserRepository, cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends MessagesAbstractController(cc) {
-
-  val productForm: Form[CreateUserForm] = Form {
-    mapping(
-      "firstName" -> nonEmptyText,
-      "lastName" -> nonEmptyText,
-      "email" -> nonEmptyText,
-      "address" -> nonEmptyText
-    ) (CreateUserForm.apply)(CreateUserForm.unapply)
-  }
-
-
+class UserController @Inject() (
+  userRepository: UserRepository,
+  rolesRepository: RoleRepository,
+  silhouette: Silhouette[DefaultEnv],
+  cc: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+  extends MessagesAbstractController(cc) {
 
   def getUsers: Action[AnyContent] = Action.async { implicit request =>
-    val users = userRepo.list()
-    users.map( users => Ok(views.html.users(users)))
-  }
-
-  def getUser: Action[AnyContent] = Action.async { implicit request =>
-    val users = userRepo.list()
-    users.map(
-      users => Ok(views.html.users(users))
-      )
-  }
-
-  def delete(id: UUID): Action[AnyContent] = Action {
-    userRepo.delete(id)
-    Redirect("/users")
-  }
-
-  def update(id: UUID): Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    var categ:Seq[User] = Seq[User]()
-    val categories = userRepo.list().onComplete{
-      case Success(cat) => categ = cat
-      case Failure(_) => print("fail")
+    userRepository.list().map { u =>
+      Ok(Json.toJson(u))
     }
-
-    val user = userRepo.getById(id)
-    user.map(user => {
-      Ok("ok")
-    })
   }
 
-  def insert: Action[AnyContent] = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    val categories = userRepo.list()
-    categories.map (cat => Ok("ok"))
+  def isAdmin: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
+    val userId = request.identity.userID
+    userRepository.isAdmin(userId).map {
+      case true => Ok(Json.toJson(userId))
+      case false => Forbidden(Json.toJson(userId))
+    }
   }
 
+  def getUser: Action[AnyContent] = silhouette.SecuredAction.async { implicit request =>
+    val identity: User = request.identity
+    Future.successful(Ok(Json.toJson(identity)))
+  }
+
+  def getByRole(id: Int): Action[AnyContent] = Action.async { implicit request =>
+    userRepository.getByRoleId(id).map { users =>
+      Ok(Json.toJson(users))
+    }
+  }
+
+  def getUserById(id: UUID): Action[AnyContent] = Action.async { implicit request =>
+    userRepository.find(id).map { p =>
+      Ok(Json.toJson(p))
+    }
+  }
+
+  def addUser: Action[AnyContent] = Action.async { implicit request =>
+    val email = request.body.asJson.get("email").as[String]
+    val firstName = request.body.asJson.get("firstName").as[String]
+    val lastName = request.body.asJson.get("lastName").as[String]
+    val active = request.body.asJson.get("active").as[Boolean]
+    val roleId = request.body.asJson.get("roleId").as[String].toInt
+    userRepository.save(User(UUID.randomUUID, CredentialsProvider.ID, email, Option(firstName), Option(lastName), Option(firstName + " " + lastName), Option(email), Option(""), active, roleId)).map {
+      user => Ok(Json.toJson(user))
+    }
+  }
 }
-//
-case class CreateUserForm(firstName: String, lastName: String, email: String, address: String)
-//case class UpdateProductForm(id: Long, name: String, description: String, user: Int)

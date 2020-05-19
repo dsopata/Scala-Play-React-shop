@@ -1,9 +1,9 @@
 package models.daos
 
-import org.joda.time.DateTime
 import java.util.UUID
 
 import models.AuthToken
+import org.joda.time.DateTime
 
 import scala.concurrent.Future
 
@@ -23,7 +23,7 @@ trait AuthTokenDAO {
   /**
    * Finds expired tokens.
    *
-   * @param dateTime The current instant.
+   * @param dateTime The current date time.
    */
   def findExpired(dateTime: DateTime): Future[Seq[AuthToken]]
 

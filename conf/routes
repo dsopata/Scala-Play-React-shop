@@ -4,59 +4,48 @@
 
 # An example controller showing a sample home page
 
+GET         /                               controllers.ApplicationController.index
+GET         /signOut                        controllers.ApplicationController.signOut
+GET         /authenticate/:provider         controllers.SocialAuthController.authenticate(provider)
 
-#PRODUCT
-GET     /                           controllers.ProductController.index
-GET     /addproduct                 controllers.ProductController.addProduct
-POST    /addproducthandle           controllers.ProductController.addProductHandle
-GET     /updateproduct/:id          controllers.ProductController.updateProduct(id: Long)
-POST    /updateproducthandle        controllers.ProductController.updateProductHandle
+GET     /users/:id                  controllers.UserController.getUserById(id: java.util.UUID)
+GET     /users/role/:id             controllers.UserController.getByRole(id: Int)
+POST    /users                      controllers.UserController.addUser
+GET     /users                      controllers.UserController.getUsers
+GET     /user                       controllers.UserController.getUser
 
+GET     /products/:id               controllers.ProductController.getProductById(id: Int)
 GET     /products                   controllers.ProductController.getProducts
-GET     /productsJson               controllers.ProductController.getProductsJSON
+POST    /products                   controllers.ProductController.create
+POST    /products/:id               controllers.ProductController.update(id :Int)
+DELETE     /products/:id            controllers.ProductController.delete(id: Int)
 
-GET     /product/:id                controllers.ProductController.getProduct(id: Long)
-GET     /delete/:id                 controllers.ProductController.delete(id: Long)
-# An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
+GET     /categories                 controllers.CategoryController.getCategories
+GET     /categories/:id             controllers.CategoryController.getCategoryById(id: Int)
+POST    /categories                 controllers.CategoryController.create
 
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /sales                      controllers.OrderSalesController.getSales
+GET     /sales/:id                  controllers.OrderSalesController.getSaleById(id: java.util.UUID)
+GET     /sales/user/:id             controllers.OrderSalesController.getByUserId(id: java.util.UUID)
+POST    /sales                      controllers.OrderSalesController.create
 
-POST    /adduser                    controllers.UserController.insert
-#POST    /udpateuser/:id             controllers.UserController.update
-#POST    /deleteuser/:id             controllers.UserController.delete
-#
-#GET    /getuser/:id                controllers.UserController.getid
-#GET    /users                      controllers.UserController.getAll
-#
-#POST    /addcart                    controllers.CartController.insert
-#POST    /udpatecart/:id             controllers.CartController.update
-#POST    /deletecart/:id             controllers.CartController.delete
-#GET    /getcart/:id                controllers.CartController.getid
-#GET    /carts                      controllers.CartController.getAll
-#
-#POST    /addcomment                    controllers.CommentController.insert
-#POST    /udpatecomment/:id             controllers.CommentController.update
-#POST    /deletecomment/:id             controllers.CommentController.delete
-#GET    /getcomment/:id                controllers.CommentController.getid
-#GET    /comments                      controllers.CommentController.getAll
-#
-#POST    /adddelivery                    controllers.DeliveryController.insert
-#POST    /udpatedelivery/:id             controllers.DeliveryController.update
-#POST    /deletedelivery/:id             controllers.DeliveryController.delete
-#GET    /getdelivery/:id                controllers.DeliveryController.getid
-#GET    /deliverys                      controllers.DeliveryController.getAll
-#
-#POST    /addpaynment                    controllers.PaynmentController.insert
-#POST    /udpatepaynment/:id             controllers.PaynmentController.update
-#POST    /deletepaynment/:id             controllers.PaynmentController.delete
-#GET    /getpaynment/:id                controllers.PaynmentController.getid
-#GET    /paynments                      controllers.PaynmentController.getAll
-#
-#POST    /addwarehouse                    controllers.WarehouseController.insert
-#POST    /udpatewarehouse/:id             controllers.WarehouseController.update
-#POST    /deletewarehouse/:id             controllers.WarehouseController.delete
-#GET    /getwarehouse/:id                controllers.WarehouseController.getid
-#GET    /warehouses                      controllers.WarehouseController.getAll
+GET     /orders                     controllers.OrderSalesController.getSales
+DELETE  /orders/:id                 controllers.OrderSalesController.deleteSale(id: java.util.UUID)
+
+GET     /ordersAdresses             controllers.OrderSalesController.getSalesAdresses
+GET     /ordersStatuses             controllers.OrderSalesController.getOrderStatus
+GET     /orders/products            controllers.OrderProductController.getOrderProducts
+GET     /orders/:id                 controllers.OrderProductController.getOrderProductById(id: java.util.UUID)
+GET     /orders/sale/:id            controllers.OrderProductController.getOrderProductsByOrderId(id: java.util.UUID)
+POST    /orders/status/:id          controllers.OrderProductController.updateOrderStatus(id: java.util.UUID)
+
+GET     /roles                      controllers.RoleController.getRoles
+GET     /roles/:id                  controllers.RoleController.getRoleById(id: Int)
+POST    /roles                      controllers.RoleController.create
+
+GET     /comments/:id               controllers.CommentController.getCommentsByProductId(id: Int)
+POST    /comments/:id               controllers.CommentController.addComment(id: Int)
+DELETE  /comments/:id               controllers.CommentController.delete(id: Int)
+
+GET     /rating/:id               controllers.RatingController.getProductRating(id: Int)
+PUT     /rating/:id               controllers.RatingController.addRatingToProduct(id: Int)

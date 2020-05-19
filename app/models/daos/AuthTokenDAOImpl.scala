@@ -1,13 +1,13 @@
 package models.daos
 
-
 import java.util.UUID
 
 import models.AuthToken
 import models.daos.AuthTokenDAOImpl._
+import org.joda.time.DateTime
+
 import scala.collection.mutable
 import scala.concurrent.Future
-import org.joda.time.DateTime
 
 /**
  * Give access to the [[AuthToken]] object.

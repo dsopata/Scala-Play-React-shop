@@ -1,44 +1,72 @@
-import sbt._
-import play.sbt.{ PlayLayoutPlugin, PlayScala}
+import com.typesafe.sbt.SbtScalariform._
 
-name := "scala1"
- 
-version := "1.0"
+import scalariform.formatter.preferences._
 
-lazy val `scala1` = (project in file(".")).enablePlugins(PlayScala)
+name := "ebiznes"
 
-resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
-resolvers += Resolver.sonatypeRepo("snapshots")
+version := "6.0.0"
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+scalaVersion := "2.12.1"
+
 resolvers += Resolver.jcenterRepo
-resolvers += "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/Users/dsopata/_projects/studies/scala1/app/controllers/UserController.scala:10/"
+
 resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-scalaVersion := "2.12.2"
-
 libraryDependencies ++= Seq(
-  ehcache,
-  ws ,
-  specs2 % Test ,
-  guice,
-  filters,
-  evolutions,
-  "com.typesafe.play" %% "play-slick" % "4.0.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "4.0.0",
+  "com.mohiva" %% "play-silhouette" % "6.1.1",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "6.1.1",
+  "com.mohiva" %% "play-silhouette-persistence" % "6.1.1",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "6.1.1",
+  "com.mohiva" %% "play-silhouette-totp" % "6.1.1",
+  "org.webjars" %% "webjars-play" % "2.8.0",
+  "org.webjars" % "bootstrap" % "4.4.1" exclude("org.webjars", "jquery"),
+  "org.webjars" % "jquery" % "3.2.1",
+  "net.codingwell" %% "scala-guice" % "4.2.6",
+  "com.iheart" %% "ficus" % "1.4.7",
+  "com.typesafe.play" %% "play-mailer" % "7.0.1",
+  "com.typesafe.play" %% "play-mailer-guice" % "7.0.1",
+  "com.enragedginger" %% "akka-quartz-scheduler" % "1.8.2-akka-2.6.x",
+  "com.adrianhurt" %% "play-bootstrap" % "1.5.1-P27-B4",
+  "com.mohiva" %% "play-silhouette-testkit" % "6.1.1" % "test",
   "org.xerial"        %  "sqlite-jdbc" % "3.30.1",
-  "com.mohiva"        %% "play-silhouette" % "5.0.0-RC2",
-  "com.mohiva"        %% "play-silhouette-password-bcrypt" % "5.0.0-RC2",
-  "com.mohiva"        %% "play-silhouette-persistence" % "5.0.0-RC2",
-  "com.mohiva"        %% "play-silhouette-crypto-jca" % "5.0.0-RC2",
-  "org.webjars"       %% "webjars-play" % "2.7.0",
-  "net.codingwell"    %% "scala-guice" % "4.1.0",
-  "com.iheart"        %% "ficus" % "1.4.3",
-  "com.typesafe.play" %% "play-mailer" % "7.0.0",
-  "com.typesafe.play" %% "play-mailer-guice" % "7.0.0",
-  "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.1-akka-2.5.x"
+  "com.typesafe.play" %% "play-slick" % "3.0.3",
+  "com.typesafe.play" %% "play-slick-evolutions" % "3.0.3",
+  specs2 % Test,
+  ehcache,
+  guice,
+  ws ,
+  filters,
+  evolutions
 )
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-      
+routesImport += "utils.route.Binders._"
+
+// https://github.com/playframework/twirl/issues/105
+TwirlKeys.templateImports := Seq()
+
+scalacOptions ++= Seq(
+  "-deprecation", // Emit warning and location for usages of deprecated APIs.
+  "-feature", // Emit warning and location for usages of features that should be imported explicitly.
+  "-unchecked", // Enable additional warnings where generated code depends on assumptions.
+  // "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+  "-Xlint", // Enable recommended additional warnings.
+  "-Ywarn-dead-code", // Warn when dead code is identified.
+  "-Ywarn-numeric-widen", // Warn when numerics are widened.
+  // Play has a lot of issues with unused imports and unsued params
+  // https://github.com/playframework/playframework/issues/6690
+  // https://github.com/playframework/twirl/issues/105
+  //"-Xlint:-unused,_"
+)
+
+//********************************************************
+// Scalariform settings
+//********************************************************
+
+scalariformAutoformat := true
+
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(FormatXml, false)
+  .setPreference(DoubleIndentConstructorArguments, false)
+  .setPreference(DanglingCloseParenthesis, Preserve)

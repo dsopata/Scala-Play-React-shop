@@ -3,67 +3,84 @@ package models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import javax.inject.{Inject, Singleton}
+import com.mohiva.play.silhouette.impl.providers.{ CommonSocialProfile, CredentialsProvider }
+import javax.inject.Inject
 import models.daos.UserDAO
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
-@Singleton
-class UserRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends UserDAO{
-  private val dbConfig = dbConfigProvider.get[JdbcProfile]
+class UserRepository @Inject() (dbConfigProvider: DatabaseConfigProvider, val rolesRepository: RoleRepository)(implicit ec: ExecutionContext) extends UserDAO {
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig._
   import profile.api._
 
-  private class UserTable(tag: Tag) extends Table[User](tag, "user") {
-    def id = column[UUID]("id", O.PrimaryKey, O.AutoInc)
-    def firstName = column[Option[String]]("firstName")
-    def lastName = column[Option[String]]("lastName")
-    def email = column[Option[String]]("email")
-    def isActive = column[Boolean]("activated")
-    def providerID = column[String]("providerid")
-    def providerKey = column[String]("providerkey")
-    def roleId = column[Int]("roleID")
+  val user = TableQuery[UserTable]
+  import rolesRepository.RolesTable
+  private val role = TableQuery[RolesTable]
 
-    def * = (id, providerID, providerKey, firstName,
-      lastName, email, isActive, roleId) <> ((User.apply _).tupled, User.unapply)
-
-  }
-
-  private val user = TableQuery[UserTable]
-
-  def find(loginInfo: LoginInfo): Future[Option[User]] = db.run {
-    user.filter(_.providerID === loginInfo.providerID).filter(_.providerKey === loginInfo.providerKey).result.headOption
-  }
-
-  def find(id: UUID): Future[Option[User]] = db.run {
-    user.filter(_.id === id).result.headOption
+  def save(userToAdd: User): Future[User] = {
+    val insertAction = (user += userToAdd).flatMap {
+      case 0 => DBIO.failed(new Exception("Failed to insert `User` object"))
+      case _ => DBIO.successful(userToAdd)
+    }
+    db.run(insertAction)
   }
 
   def list(): Future[Seq[User]] = db.run {
     user.result
   }
 
-  def getById(id: UUID): Future[User] = db.run {
-    user.filter(_.id === id).result.head
+  def isAdmin(id: UUID): Future[Boolean] = {
+    val roleId = user.filter(_.id === id).map(_.roleId)
+    db.run(role.filter(_.id in roleId).filter(_.role === "admin").exists.result) // <- run as one query
   }
 
-  def save(_user: User): Future[User] = {
-    val insertAction = (user += _user).flatMap {
-      case _ => DBIO.successful(_user)
-      case 0 => DBIO.failed(new Exception("Failed to insert `User` object"))
-    }
-    db.run(insertAction)
+  def isUserAdmin(id: UUID): Boolean = {
+    val roleId = user.filter(_.id === id).map(_.roleId)
+    var isAdmin = db.run(role.filter(_.id in roleId).filter(_.role === "admin").exists.result) // <- run as one query
+
+    Await.result(isAdmin, Duration.Inf)
   }
 
-  def delete(id: UUID): Future[Unit] = db.run(user.filter(_.id === id).delete).map(_ => ())
+  def find(id: UUID): Future[Option[User]] = db.run {
+    user.filter(_.id === id).result.headOption
+  }
+
+  def getByRoleId(category_id: Int): Future[Seq[User]] = db.run {
+    user.filter(_.roleId === category_id).result
+  }
+
+  def find(loginInfo: LoginInfo): Future[Option[User]] = db.run {
+    user.filter(_.providerID === loginInfo.providerID).filter(_.providerKey === loginInfo.providerKey).result.headOption
+  }
+
+  def getByRolesId(category_ids: List[Int]): Future[Seq[User]] = db.run {
+    user.filter(_.roleId inSet category_ids).result
+  }
 
   def update(updateUser: User): Future[User] = db.run {
     user
-      .filter(_.id === updateUser.id)
+      .filter(_.id === updateUser.userID)
       .update(updateUser).map(_ => updateUser)
   }
 
+  class UserTable(tag: Tag) extends Table[User](tag, "users") {
+    def id = column[UUID]("id", O.PrimaryKey)
+    def email = column[Option[String]]("email")
+    def roleId = column[Int]("roleId")
+    def providerID = column[String]("providerid")
+    def providerKey = column[String]("providerkey")
+    def active = column[Boolean]("activated")
+    def fname = column[Option[String]]("firstName")
+    def lname = column[Option[String]]("lastName")
+    def fullName = column[Option[String]]("fullName")
+    def avatarURL = column[Option[String]]("avatarurl")
+    def fKeyuserRoles_users = foreignKey("fKeyuserRoles_users", roleId, role)(_.id)
+    def * = (id, providerID, providerKey, fname, lname, fullName, email, avatarURL, active, roleId) <> ((User.apply _).tupled, User.unapply)
+  }
 }

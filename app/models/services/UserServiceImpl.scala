@@ -5,10 +5,10 @@ import java.util.UUID
 import javax.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import models.{User, UserRepository}
+import models.{ User, UserRepository }
 import models.daos.UserDAO
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * Handles actions to users.
@@ -55,16 +55,20 @@ class UserServiceImpl @Inject() (userDAO: UserDAO, userRepository: UserRepositor
       case Some(user) => userRepository.update(user.copy(
         firstName = profile.firstName,
         lastName = profile.lastName,
-        email = profile.email // Do not override existing email with empty email
+        fullName = profile.fullName,
+        email = profile.email,
+        avatarURL = profile.avatarURL
       ))
       case None => // Insert a new user
         userRepository.save(User(
-            id = UUID.randomUUID(),
-            providerId = profile.loginInfo.providerID,
-            providerKey = profile.loginInfo.providerKey,
-            firstName = profile.firstName,
+          userID = UUID.randomUUID(),
+          providerId = profile.loginInfo.providerID,
+          providerKey = profile.loginInfo.providerKey,
+          firstName = profile.firstName,
           lastName = profile.lastName,
+          fullName = profile.fullName,
           email = profile.email,
+          avatarURL = profile.avatarURL,
           activated = true,
           roleId = 2
         ))
