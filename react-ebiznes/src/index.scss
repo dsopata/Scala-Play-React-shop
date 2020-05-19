@@ -1,0 +1,42 @@
+$primary: rebeccapurple;
+
+@import '~bootstrap/scss/bootstrap.scss';
+
+
+$danger: #dd0000;
+$success: lime;
+$warning: orange;
+$info: aqua;
+
+
+.container  {
+  padding: 15px 0;
+}
+.products-container .container {
+  margin: 0 auto;
+}
+
+.card{
+  margin: 13px;
+}
+.products-container .card{
+  width: 100%;
+  float: left;
+  margin: 15px 0;
+}
+
+.navbar-brand a {
+  color: white
+}
+
+.nav-item a {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.col-auto img, .item-img img, .title img {
+  max-width: 300px;
+}
+
+.checkout button {
+  float: right
+}
