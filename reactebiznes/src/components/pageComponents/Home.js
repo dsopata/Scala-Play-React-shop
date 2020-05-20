@@ -41,8 +41,8 @@ class Home extends Component {
 
             : "";
         let items = this.props.filteredProducts || this.props.items || []
+        let disabledButton = this.props.user && this.props.user.isLogged ? "" : "disabled"
         let itemList = items.length > 0 ? items.map(item => (
-
             <div className="card" key={item.id}>
                 <div className="row no-gutters">
                     <div className="col-auto">
@@ -56,7 +56,8 @@ class Home extends Component {
                             <p className="card-text">{item.description}</p>
                             <p><b>Price: {item.price} $ </b></p>
                             <p>
-                                <button className="btn btn-primary" onClick={() => {
+                                <button disabled={disabledButton} className="btn btn-primary"
+                                        onClick={() => {
                                     this.handleClick(item)
                                 }}>Add to Cart
                                 </button>

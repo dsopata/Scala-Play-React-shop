@@ -36,6 +36,7 @@ class ProductPage extends Component {
         }
         let product = this.props.product;
         let category = this.props.category;
+        let disabledButton = this.props.user && this.props.user.isLogged ? "" : "disabled";
         let editSection = product && this.props.user.isAdmin ?
             <div className={"container"}>
                 <button className={"btn btn-warning"}>
@@ -54,7 +55,7 @@ class ProductPage extends Component {
                     <div className="secondary-content">
                         <span>Price: {product.price} $ </span>
 
-                        <button className="btn btn-primary" onClick={() => this.buyFunc(product)}>Buy</button>
+                        <button disabled={disabledButton}  className="btn btn-primary" onClick={() => this.buyFunc(product)}>Buy</button>
                     </div>
                 </div>
                 <br />

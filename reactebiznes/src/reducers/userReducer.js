@@ -40,7 +40,6 @@ export default function (state = initialState, action = {}) {
                 ...state
             };
         case SET_USER:
-            debugger
                 let newState = {
                     ...state,
                     user: action.payload,
